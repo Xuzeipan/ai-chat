@@ -1,4 +1,4 @@
-# 上下文管理案例
+# getContext 函数案例
 
 ## 1. getContext 函数实现
 
@@ -116,71 +116,7 @@ const context = getContext(messages, mode);
 ]
 ```
 
-## 5. 高级优化策略
-
-### 策略 1：重要对话标记
-
-```typescript
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  important?: boolean;  // 标记重要消息
-}
-
-function getContextOptimized(messages: Message[], mode: Mode): Message[] {
-  const systemMessage: Message = {
-    id: 'system',
-    role: 'system',
-    content: mode.systemPrompt,
-  };
-
-  // 优先保留重要消息
-  const importantMessages = messages.filter(m => m.important);
-  const normalMessages = messages.filter(m => !m.important);
-
-  // 取最近 N 条普通消息
-  const recentNormal = normalMessages.slice(-(mode.contextLength - importantMessages.length));
-
-  return [systemMessage, ...importantMessages, ...recentNormal];
-}
-```
-
-### 策略 2：动态上下文长度
-
-```typescript
-function getDynamicContextLength(mode: Mode, messages: Message[]): number {
-  // 如果是代码审查模式，且消息包含代码，增加上下文长度
-  if (mode.id === 'code-reviewer') {
-    const hasCode = messages.some(m => m.content.includes('```'));
-    return hasCode ? 30 : mode.contextLength;
-  }
-  return mode.contextLength;
-}
-```
-
-### 策略 3：对话摘要
-
-```typescript
-// 对旧对话进行摘要，节省 token
-function summarizeOldMessages(messages: Message[]): Message[] {
-  if (messages.length <= 10) return messages;
-
-  const oldMessages = messages.slice(0, -10);
-  const summary = generateSummary(oldMessages);  // 调用 API 生成摘要
-
-  return [
-    {
-      id: 'summary',
-      role: 'assistant',
-      content: `[摘要] ${summary}`,
-    },
-    ...messages.slice(-10),
-  ];
-}
-```
-
-## 6. 测试用例
+## 5. 测试用例
 
 ```typescript
 // 测试上下文截断
@@ -197,10 +133,27 @@ console.log(context.length); // 应该是 6 (1 system + 5 messages)
 console.log(context[1].content); // 应该是 "Message 15" (倒数第 5 条)
 ```
 
+## 6. 不同模式的上下文长度
+
+```typescript
+// 普通聊天模式：10 条
+const context1 = getContext(messages, MODES[0]);
+console.log(context1.length); // 11 (1 system + 10 messages)
+
+// 前端导师模式：15 条
+const context2 = getContext(messages, MODES[1]);
+console.log(context2.length); // 16 (1 system + 15 messages)
+
+// 代码审查模式：20 条
+const context3 = getContext(messages, MODES[2]);
+console.log(context3.length); // 21 (1 system + 20 messages)
+```
+
 ## 你的任务
 
 1. 在 `src/utils/` 目录下创建 `context.ts` 文件
 2. 实现 `getContext` 函数
 3. 导出函数供其他模块使用
+4. 编写测试用例验证功能
 
 完成后告诉我："我写好了，你检查一下 @src/utils/context.ts"

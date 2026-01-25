@@ -1,5 +1,5 @@
 import styles from "./ChatInput.module.css";
-import type { ChatInputProps } from "../types";
+import type { ChatInputProps } from "../../types";
 import type { KeyboardEvent } from "react";
 import { useState } from "react";
 

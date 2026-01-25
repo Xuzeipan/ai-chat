@@ -1,19 +1,6 @@
-# API 集成案例 - 流式输出
+# API 流式改造案例
 
-## 1. StreamChunk 类型定义
-
-```typescript
-// 流式响应的数据块类型
-interface StreamChunk {
-  done: boolean;
-  message?: {
-    role: string;
-    content: string;
-  };
-}
-```
-
-## 2. sendMessageStream 函数实现
+## 1. sendMessageStream 函数实现
 
 ```typescript
 import { Message } from '../types';
@@ -103,88 +90,58 @@ export async function sendMessageStream(
 }
 ```
 
-## 3. 在组件中使用流式输出
-
-```typescript
-import { useState } from 'react';
-import { sendMessageStream } from '../services/chat';
-import { Message, Mode } from '../types';
-import getContext from '../utils/context';
-
-function App() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [currentMode, setCurrentMode] = useState<Mode>(MODES[0]);
-
-  const handleSend = async (content: string) => {
-    // 1. 添加用户消息
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content,
-    };
-
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setLoading(true);
-    setError(null);
-
-    // 2. 创建空的 AI 消息占位符
-    const assistantMessageId = (Date.now() + 1).toString();
-    const assistantMessage: Message = {
-      id: assistantMessageId,
-      role: 'assistant',
-      content: '',
-    };
-
-    setMessages([...newMessages, assistantMessage]);
-
-    // 3. 获取上下文
-    const context = getContext(newMessages, currentMode);
-
-    // 4. 流式发送
-    await sendMessageStream(
-      context,
-      // onChunk: 接收到新内容时更新消息
-      (newContent: string) => {
-        setMessages(prev => prev.map(msg =>
-          msg.id === assistantMessageId
-            ? { ...msg, content: msg.content + newContent }
-            : msg
-        ));
-      },
-      // onComplete: 流式输出完成
-      () => {
-        setLoading(false);
-      },
-      // onError: 错误处理
-      (err: Error) => {
-        setLoading(false);
-        setError(err.message);
-      }
-    );
-  };
-}
-```
-
-## 4. 流式输出原理
-
-### 传统方式 vs 流式输出
+## 2. 传统方式 vs 流式方式
 
 ```typescript
 // 传统方式：等待完整响应
-const response = await fetch('...');
-const data = await response.json();
-const reply = data.message.content;  // 一次性显示完整内容
+export async function sendMessage(content: string, context: Message[]): Promise<string> {
+  const request = {
+    model: "qwen2.5-coder:7b",
+    messages: context.map(msg => ({ role: msg.role, content: msg.content })),
+    stream: false,  // 关闭流式输出
+  };
 
-// 流式输出：逐块接收
-const reader = response.body.getReader();
+  const response = await fetch('http://localhost:11434/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  });
+
+  const data = await response.json();
+  return data.message.content;  // 返回完整内容
+}
+
+// 流式方式：逐块接收
+export async function sendMessageStream(
+  context: Message[],
+  onChunk: (content: string) => void,
+  onComplete: () => void,
+  onError: (error: Error) => void
+): Promise<void> {
+  // ... 逐块接收并实时回调
+}
+```
+
+## 3. 流式输出原理
+
+### ReadableStream API
+
+```typescript
+// 1. 获取响应体
+const response = await fetch('...');
+const body = response.body;  // ReadableStream
+
+// 2. 创建读取器
+const reader = body.getReader();  // ReadableStreamDefaultReader
+
+// 3. 读取数据块
 while (true) {
   const { done, value } = await reader.read();
-  if (done) break;
+  if (done) break;  // 读取完成
+
+  // value 是 Uint8Array，需要解码
   const chunk = decoder.decode(value);
-  displayChunk(chunk);  // 实时显示每个片段
+  processChunk(chunk);
 }
 ```
 
@@ -198,11 +155,18 @@ API 响应流:
 {"done":false,"message":{"role":"assistant","content":"导师"}}
 {"done":true}
 
+逐块解析:
+Chunk 1 → "你好"
+Chunk 2 → "！我是"
+Chunk 3 → "前端"
+Chunk 4 → "导师"
+Chunk 5 → 完成
+
 用户看到:
-你好 → 你好！ → 你好！我是 → 你好！我是前端 → 你好！我是前端导师
+你好 → 你好！我是 → 你好！我是前端 → 你好！我是前端导师
 ```
 
-## 5. 错误处理和边界情况
+## 4. 错误处理和边界情况
 
 ```typescript
 // 添加超时处理
@@ -251,7 +215,7 @@ export async function sendMessageStreamWithRetry(
 }
 ```
 
-## 6. 性能优化
+## 5. 性能优化
 
 ```typescript
 // 使用 requestAnimationFrame 优化渲染频率
@@ -272,10 +236,36 @@ function optimizedOnChunk(content: string) {
 }
 ```
 
+## 6. 测试用例
+
+```typescript
+// 测试流式输出
+async function testStreamOutput() {
+  const chunks: string[] = [];
+
+  await sendMessageStream(
+    context,
+    (content) => {
+      chunks.push(content);
+      console.log('收到内容片段:', content);
+    },
+    () => {
+      console.log('流式输出完成');
+      console.log('所有片段:', chunks);
+      console.log('完整内容:', chunks.join(''));
+    },
+    (error) => {
+      console.error('流式输出错误:', error);
+    }
+  );
+}
+```
+
 ## 你的任务
 
-1. 在 `src/services/chat.ts` 中添加 `StreamChunk` 类型
-2. 实现 `sendMessageStream` 函数
-3. 导出函数供组件使用
+1. 在 `src/services/chat.ts` 中实现 `sendMessageStream` 函数
+2. 理解 ReadableStream API 的工作原理
+3. 测试流式输出功能
+4. 验证错误处理
 
 完成后告诉我："我写好了，你检查一下 @src/services/chat.ts"

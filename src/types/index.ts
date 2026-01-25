@@ -62,3 +62,31 @@ export interface OllamaChatResponse {
   };
   done: boolean;
 }
+
+// 模式类型
+export interface Mode {
+  id: string;
+  name: string;
+  description: string;
+  systemPrompt: string;
+  contextLength: number;
+  icon?: string;
+}
+
+// 流式响应的数据块类型
+export interface StreamChunk {
+  done: boolean;
+  message?: {
+    role: string;
+    content: string;
+  };
+}
+
+// 应用状态
+export interface AppState {
+  messages: Message[];
+  loading: boolean;
+  error: string | null;
+  currentMode: Mode;
+  modes: Mode[];
+}

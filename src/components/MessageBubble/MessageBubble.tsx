@@ -1,4 +1,4 @@
-import type { Message } from "../types";
+import type { Message } from "../../types";
 import styles from "./MessageBubble.module.css";
 
 // 定义 Props 接口
