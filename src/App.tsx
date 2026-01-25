@@ -1,8 +1,8 @@
 import { useState } from "react";
-import type { Mode, AppState } from "./types";
+import type { Mode, AppState, Message } from "./types";
 import styles from "./App.module.css";
 import MODES from "./config/modes";
-import { sendMessage } from "./services/chat";
+import { sendMessageStream } from "./services/chat";
 import { ChatList } from "./components/ChatList/ChatList";
 import { ChatInput } from "./components/ChatInput/ChatInput";
 import { ModeSelector } from "./components/ModeSelector/ModeSelector";
@@ -42,23 +42,54 @@ function App() {
       loading: true,
     }));
 
+    // 创建空的 AI 消息占位符
+    const assistantMessageId = (Date.now() + 1).toString();
+    const assistantMessage: Message = {
+      id: assistantMessageId,
+      role: "assistant",
+      content: "",
+    };
+
+    setState((prev) => ({
+      ...prev,
+      messages: [...newMessages, assistantMessage],
+    }));
+
     // 获取上下文
     const context = getContext(newMessages, state.currentMode);
 
-    // 2.调用 Ollama API
+    // 调用 Ollama API
     try {
-      const reply = await sendMessage(content, context);
-      const assistantMessage = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant" as const,
-        content: reply,
-      };
-
-      setState((prev) => ({
-        ...prev,
-        messages: [...newMessages, assistantMessage],
-        loading: false,
-      }));
+      await sendMessageStream(
+        context,
+        // onChunk: 接收到新内容时更新消息
+        (newContent: string) => {
+          setState((prev) => ({
+            ...prev,
+            messages: prev.messages.map((msg) =>
+              msg.id === assistantMessageId
+                ? { ...msg, content: msg.content + newContent }
+                : msg,
+            ),
+            loading: false,
+          }));
+        },
+        // onComplete: 流式输出完成
+        () => {
+          setState((prev) => ({
+            ...prev,
+            loading: false,
+          }));
+        },
+        // onError: 错误处理
+        (error: Error) => {
+          setState((prev) => ({
+            ...prev,
+            loading: false,
+            error: error.message,
+          }));
+        },
+      );
     } catch (error) {
       setState((prev) => ({
         ...prev,
@@ -66,6 +97,13 @@ function App() {
         error: error instanceof Error ? error.message : "发送失败，请重试",
       }));
     }
+  };
+  // 清除错误
+  const handleClearError = () => {
+    setState((prev) => ({
+      ...prev,
+      error: null,
+    }));
   };
 
   return (
@@ -86,10 +124,7 @@ function App() {
       {state.error && (
         <div className={styles.errorBanner}>
           <span className={styles.errorMessage}>{state.error}</span>
-          <button
-            className={styles.errorClose}
-            onClick={() => setState((prev) => ({ ...prev, error: null }))}
-          >
+          <button className={styles.errorClose} onClick={handleClearError}>
             ✕
           </button>
         </div>

@@ -22,19 +22,23 @@ export function ChatList({ messages, isLoading = false }: ChatListProps) {
       {messages.length === 0 ? (
         <div className={styles.empty}>暂无消息</div>
       ) : (
-        messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
-        ))
-      )}
-      {isLoading && (
-        <div className={styles.loading}>
-          <div className={styles.typingIndicator}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <span className={styles.loadingText}>AI 正在思考...</span>
-        </div>
+        <>
+          {messages
+            .filter((msg) => msg.content)
+            .map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
+          {isLoading && (
+            <div className={styles.loading}>
+              <div className={styles.typingIndicator}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span className={styles.loadingText}>AI 正在思考...</span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
