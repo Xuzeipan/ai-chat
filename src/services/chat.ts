@@ -1,17 +1,18 @@
-import type { OllamaChatRequest, OllamaChatResponse } from "../types";
+import type { OllamaChatRequest, OllamaChatResponse, Message } from "../types";
 
 // API 配置
 const API_BASE_URL = "http://localhost:11434/api";
 
 // 发送消息
-export async function sendMessage(content: string): Promise<string> {
+export async function sendMessage(
+  content: string,
+  context: Message[],
+): Promise<string> {
   const request: OllamaChatRequest = {
-    messages: [
-      {
-        role: "user",
-        content,
-      },
-    ],
+    messages: context.map((msg) => ({
+      role: msg.role,
+      content: msg.content,
+    })),
     model: "qwen2.5-coder:7b",
     stream: false,
   };

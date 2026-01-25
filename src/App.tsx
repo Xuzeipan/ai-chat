@@ -6,6 +6,7 @@ import { sendMessage } from "./services/chat";
 import { ChatList } from "./components/ChatList/ChatList";
 import { ChatInput } from "./components/ChatInput/ChatInput";
 import { ModeSelector } from "./components/ModeSelector/ModeSelector";
+import getContext from "./utils/context";
 
 function App() {
   const [state, setState] = useState<Omit<AppState, "modes">>({
@@ -34,15 +35,19 @@ function App() {
       content,
     };
 
+    const newMessages = [...state.messages, userMessage];
     setState((prev) => ({
       ...prev,
-      messages: [...prev.messages, userMessage],
+      messages: newMessages,
       loading: true,
     }));
 
+    // 获取上下文
+    const context = getContext(newMessages, state.currentMode);
+
     // 2.调用 Ollama API
     try {
-      const reply = await sendMessage(content);
+      const reply = await sendMessage(content, context);
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: "assistant" as const,
@@ -51,7 +56,7 @@ function App() {
 
       setState((prev) => ({
         ...prev,
-        messages: [...prev.messages, assistantMessage],
+        messages: [...newMessages, assistantMessage],
         loading: false,
       }));
     } catch (error) {

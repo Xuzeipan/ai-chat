@@ -1,4 +1,4 @@
-type MessageRole = "user" | "assistant";
+type MessageRole = "user" | "assistant" | "system";
 
 // 消息接口
 export interface Message {
