@@ -64,7 +64,7 @@ ollama pull qwen2.5-coder:7b
 ### 4. Start Development Server
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Visit http://localhost:5173
@@ -246,6 +246,7 @@ The project includes detailed tutorials in the `教学指南/` directory:
 - [ ] Custom modes (user-created modes)
 - [ ] Mode memory (remember conversation history per mode)
 - [ ] Mode recommendations (auto-recommend mode based on question)
+- [ ] Adapt and configure various AI model APIs
 - [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
 
 ## License

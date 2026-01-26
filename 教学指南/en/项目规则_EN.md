@@ -191,6 +191,7 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
 - [ ] Dark mode
 - [ ] Image upload
 - [ ] Voice input
+- [ ] Adapt and configure various AI model APIs
 - [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
 
 ## 7. Important Reminders

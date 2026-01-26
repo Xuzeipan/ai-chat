@@ -64,7 +64,7 @@ ollama pull qwen2.5-coder:7b
 ### 4. 启动开发服务器
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 访问 http://localhost:5173
@@ -246,6 +246,7 @@ npm run lint     # 运行 ESLint 检查
 - [ ] 自定义模式（用户创建自己的模式）
 - [ ] 模式记忆（记住每个模式下的对话历史）
 - [ ] 模式推荐（根据问题自动推荐模式）
+- [ ] 适配配置各种AI模型API
 - [ ] 智能体系统重构（多聊天记录支持，Agent 替代 Mode）
 
 ## 许可证
