@@ -85,6 +85,12 @@ Teaching Guide/
         ├── 流式类型定义案例.md
         ├── API流式改造案例.md
         └── 集成流式输出案例.md
+└── v0.3/              # v0.3 version
+    ├── v0.3规划.md
+    └── Markdown渲染/
+        ├── 类型定义案例.md
+        ├── MarkdownRenderer组件案例.md
+        └── 集成Markdown渲染.md
 ```
 
 ### Version Planning File Format Standards
@@ -174,12 +180,13 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
   - ✅ API streaming transformation (sendMessageStream)
   - ✅ Streaming output integration
 
-### v0.3 Pending ⏳
-- Markdown rendering
-- Message export
-- Dark mode
-- Image upload
-- Voice input
+### Todo ⏳
+- [ ] Markdown rendering
+- [ ] Message export
+- [ ] Dark mode
+- [ ] Image upload
+- [ ] Voice input
+- [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
 
 ## 7. Important Reminders
 - **Don't write code for me**, unless I explicitly ask

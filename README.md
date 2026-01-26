@@ -203,8 +203,19 @@ npm run lint     # 运行 ESLint 检查
   - API 集成（流式输出 sendMessageStream）
   - UI 组件（ModeSelector）
   - 状态管理（完整的状态管理案例）
+- **v0.3/** - v0.3 版本的开发案例
+  - Markdown 渲染（marked + highlight.js）
+  - MarkdownRenderer 组件
+  - 集成 Markdown 渲染
 
 ## 版本历史
+
+### v0.3 (规划中)
+
+- [ ] Markdown 渲染（marked + highlight.js）
+- [ ] 代码高亮
+- [ ] 表格支持
+- [ ] MarkdownRenderer 组件
 
 ### v0.2 (已完成)
 
@@ -234,6 +245,7 @@ npm run lint     # 运行 ESLint 检查
 - [ ] 自定义模式（用户创建自己的模式）
 - [ ] 模式记忆（记住每个模式下的对话历史）
 - [ ] 模式推荐（根据问题自动推荐模式）
+- [ ] 智能体系统重构（多聊天记录支持，Agent 替代 Mode）
 
 ## 许可证
 

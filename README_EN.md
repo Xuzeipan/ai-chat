@@ -203,8 +203,19 @@ The project includes detailed tutorials in the `教学指南/` directory:
   - API integration (streaming sendMessageStream)
   - UI components (ModeSelector)
   - State management (complete state management examples)
+- **v0.3/** - v0.3 development examples
+  - Markdown rendering (marked + highlight.js)
+  - MarkdownRenderer component
+  - Markdown rendering integration
 
 ## Version History
+
+### v0.3 (Planned)
+
+- [ ] Markdown rendering (marked + highlight.js)
+- [ ] Code highlighting
+- [ ] Table support
+- [ ] MarkdownRenderer component
 
 ### v0.2 (Completed)
 
@@ -234,6 +245,7 @@ The project includes detailed tutorials in the `教学指南/` directory:
 - [ ] Custom modes (user-created modes)
 - [ ] Mode memory (remember conversation history per mode)
 - [ ] Mode recommendations (auto-recommend mode based on question)
+- [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
 
 ## License
 
