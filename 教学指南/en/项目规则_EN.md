@@ -86,11 +86,11 @@ Teaching Guide/
         ├── API流式改造案例.md
         └── 集成流式输出案例.md
 └── v0.3/              # v0.3 version (Completed)
-    ├── v0.3规划.md
+    ├── v0.3规划_EN.md
     └── Markdown渲染/
-        ├── 类型定义案例.md
-        ├── MarkdownRenderer组件案例.md
-        └── 集成Markdown渲染.md
+        ├── 类型定义案例_EN.md
+        ├── MarkdownRenderer组件案例_EN.md
+        └── 集成Markdown渲染案例_EN.md
 ```
 
 ### Version Planning File Format Standards
