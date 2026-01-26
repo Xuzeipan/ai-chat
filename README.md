@@ -44,7 +44,7 @@ cd ai-chat
 ### 2. 安装依赖
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. 配置 Ollama
@@ -210,12 +210,13 @@ npm run lint     # 运行 ESLint 检查
 
 ## 版本历史
 
-### v0.3 (规划中)
+### v0.3 (已完成)
 
-- [ ] Markdown 渲染（marked + highlight.js）
-- [ ] 代码高亮
-- [ ] 表格支持
-- [ ] MarkdownRenderer 组件
+- ✅ Markdown 渲染（marked + highlight.js）
+- ✅ 代码高亮
+- ✅ 表格支持
+- ✅ MarkdownRenderer 组件
+- ✅ 集成到 MessageBubble
 
 ### v0.2 (已完成)
 

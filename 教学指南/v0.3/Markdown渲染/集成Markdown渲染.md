@@ -119,8 +119,8 @@ A: 检查 `marked.parse()` 返回的是否为字符串，可能需要转换类�
 
 A: 可以添加 DOMPurify 进行净化：
 ```bash
-npm install dompurify
-npm install --save-dev @types/dompurify
+pnpm add dompurify
+pnpm add -D @types/dompurify
 ```
 
 ```typescript

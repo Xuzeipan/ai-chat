@@ -90,3 +90,10 @@ export interface AppState {
   currentMode: Mode;
   modes: Mode[];
 }
+
+// Markdown 渲染配置
+export interface MarkdownRendererProps {
+  content: string; // Markdown 内容
+  className?: string; // 可选的 css 类名
+  enableCodeHighlight?: boolean; // 是否启用代码高亮
+}

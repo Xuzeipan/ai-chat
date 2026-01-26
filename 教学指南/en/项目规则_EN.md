@@ -85,7 +85,7 @@ Teaching Guide/
         ├── 流式类型定义案例.md
         ├── API流式改造案例.md
         └── 集成流式输出案例.md
-└── v0.3/              # v0.3 version
+└── v0.3/              # v0.3 version (Completed)
     ├── v0.3规划.md
     └── Markdown渲染/
         ├── 类型定义案例.md
@@ -180,8 +180,13 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
   - ✅ API streaming transformation (sendMessageStream)
   - ✅ Streaming output integration
 
+### v0.3 Completed ✅
+- ✅ Markdown rendering (marked + highlight.js)
+- ✅ Code highlighting
+- ✅ MarkdownRenderer component
+- ✅ Integration with MessageBubble
+
 ### Todo ⏳
-- [ ] Markdown rendering
 - [ ] Message export
 - [ ] Dark mode
 - [ ] Image upload

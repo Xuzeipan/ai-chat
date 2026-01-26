@@ -44,7 +44,7 @@ cd ai-chat
 ### 2. Install Dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 3. Configure Ollama
@@ -210,12 +210,13 @@ The project includes detailed tutorials in the `教学指南/` directory:
 
 ## Version History
 
-### v0.3 (Planned)
+### v0.3 (Completed)
 
-- [ ] Markdown rendering (marked + highlight.js)
-- [ ] Code highlighting
-- [ ] Table support
-- [ ] MarkdownRenderer component
+- ✅ Markdown rendering (marked + highlight.js)
+- ✅ Code highlighting
+- ✅ Table support
+- ✅ MarkdownRenderer component
+- ✅ Integration with MessageBubble
 
 ### v0.2 (Completed)
 

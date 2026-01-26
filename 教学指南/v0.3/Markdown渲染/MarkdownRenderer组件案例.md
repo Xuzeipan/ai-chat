@@ -5,8 +5,8 @@
 ### 1. 安装依赖
 
 ```bash
-npm install marked highlight.js
-npm install --save-dev @types/marked @types/highlight.js
+pnpm add marked highlight.js
+pnpm add -D @types/marked @types/highlight.js
 ```
 
 ### 2. 创建组件文件
@@ -15,30 +15,27 @@ npm install --save-dev @types/marked @types/highlight.js
 
 ```typescript
 import { useMemo } from "react";
-import { marked } from "marked";
 import hljs from "highlight.js";
-import "highlight.js/styles/github-dark.css"; // 代码高亮样式
+import { marked } from "marked";
 import type { MarkdownRendererProps } from "../../types";
 import styles from "./MarkdownRenderer.module.css";
 
-// 配置 marked 使用 highlight.js 进行代码高亮
-marked.setOptions({
-  highlight: function (code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : "plaintext";
-    return hljs.highlight(code, { language }).value;
-  },
-  langPrefix: "hljs language-",
-});
+// 自定义 renderer 处理代码块高亮
+const renderer = new marked.Renderer();
+renderer.code = ({ text, lang }) => {
+  const language = hljs.getLanguage(lang || "") ? lang || "" : "plaintext";
+  const highlighted = hljs.highlight(text, { language }).value;
+  return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
+};
+
+marked.use({ renderer });
 
 export function MarkdownRenderer({
   content,
   className,
-  enableCodeHighlight = true,
 }: MarkdownRendererProps) {
-  // 使用 useMemo 缓存解析结果，避免重复渲染
   const htmlContent = useMemo(() => {
-    const rawHtml = marked.parse(content) as string;
-    return rawHtml;
+    return marked.parse(content) as string;
   }, [content]);
 
   return (
@@ -48,6 +45,16 @@ export function MarkdownRenderer({
     />
   );
 }
+```
+
+**src/main.tsx** - 添加 highlight.js 样式：
+
+```typescript
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "highlight.js/styles/github-dark.css"; // 添加这行
+import "./index.css";
+import App from "./App.tsx";
 ```
 
 ### 3. 创建样式文件
