@@ -1,17 +1,27 @@
-# AI Chat Application
+[简体中文](./README.md) | English
 
-An AI chat application built with React + TypeScript + Vite, supporting conversations with local Ollama models.
+# AI Chat Platform
+
+An AI chat platform built with Monorepo architecture, supporting client, admin, and server applications.
 
 ## Features
 
-### v0.2
+### Client App (apps/client)
+
+#### v0.3
+- 📝 Markdown rendering (marked + highlight.js)
+- 💻 Code highlighting
+- 📊 Table support
+- 🎨 MarkdownRenderer component
+
+#### v0.2
 - 🎭 **Mode System** - Multiple AI roles (General Chat, Frontend Mentor, Code Reviewer)
 - 🧠 **Smart Context** - Automatic conversation history management with sliding window for token optimization
 - ⚡ **Streaming Output** - Real-time AI responses with typewriter effect
 - 🎛️ **Mode Switching** - One-click switching between different AI roles
 - 📋 **System Prompts** - Frontend-led AI behavior control for precise answer style management
 
-### v0.1
+#### v0.1
 - 💬 **Real-time Chat** - Chat with AI models in real-time
 - 🎨 **Modern UI** - Clean and beautiful user interface
 - 🔄 **Loading States** - Clear loading and error feedback
@@ -20,15 +30,16 @@ An AI chat application built with React + TypeScript + Vite, supporting conversa
 
 ## Tech Stack
 
-- **Framework**: React 18
-- **Language**: TypeScript
-- **Build Tool**: Vite 7
-- **Styling**: CSS Modules
+- **Architecture**: Monorepo (pnpm workspace + Turborepo)
+- **Client**: React 19 + TypeScript + Vite 7
+- **Admin**: TBD
+- **Server**: TBD
 - **AI Model**: Ollama (qwen2.5-coder:7b)
 
 ## Prerequisites
 
 - Node.js 18+
+- pnpm 10+
 - Ollama installed and running
 - qwen2.5-coder:7b model downloaded
 
@@ -63,8 +74,10 @@ ollama pull qwen2.5-coder:7b
 
 ### 4. Start Development Server
 
+Start the client app:
+
 ```bash
-pnpm run dev
+pnpm client dev
 ```
 
 Visit http://localhost:5173
@@ -72,42 +85,28 @@ Visit http://localhost:5173
 ## Project Structure
 
 ```
-ai-chat/
-├── src/
-│   ├── components/          # React components
-│   │   ├── ChatList/       # Chat list
-│   │   ├── MessageBubble/  # Message bubble
-│   │   ├── ChatInput/      # Input field
-│   │   └── ModeSelector/   # Mode selector (v0.2)
-│   ├── services/           # API services
-│   │   └── chat.ts         # Ollama API wrapper (with streaming)
-│   ├── config/             # Configuration files (v0.2)
-│   │   └── modes.ts        # Mode configuration
-│   ├── utils/              # Utility functions (v0.2)
-│   │   └── context.ts      # Context management
-│   ├── types/              # TypeScript type definitions
-│   │   └── index.ts        # Type definitions (including Mode, StreamChunk)
-│   ├── App.tsx             # Main app component
-│   ├── main.tsx            # App entry point
-│   └── index.css           # Global styles
-├── 教学指南/               # Learning documentation (Chinese)
-│   ├── 项目规则.md
-│   ├── v0.1/               # v0.1 version examples
-│   │   ├── 类型定义/
-│   │   ├── UI组件/
-│   │   ├── 状态管理/
-│   │   ├── API集成/
-│   │   └── 样式优化/
-│   └── v0.2/               # v0.2 version examples
-│       ├── 类型定义/
-│       ├── 模式配置/
-│       ├── 上下文管理/
-│       ├── API集成/
-│       ├── UI组件/
-│       └── 状态管理/
-├── package.json
-├── tsconfig.json
-└── vite.config.ts
+ai-chat-platform/
+├── apps/
+│   ├── client/              # Client application
+│   │   ├── src/
+│   │   │   ├── components/  # React components
+│   │   │   ├── config/      # Configuration files
+│   │   │   ├── services/    # API services
+│   │   │   ├── types/       # TypeScript types
+│   │   │   └── utils/       # Utility functions
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   ├── admin/               # Admin application (TBD)
+│   └── server/              # Server application (TBD)
+├── packages/
+│   ├── shared/              # Shared types and utilities
+│   │   └── src/
+│   └── ui/                  # Shared UI components
+│       └── src/
+├── 教学指南/                # Learning documentation (Chinese)
+├── package.json             # Root configuration
+├── pnpm-workspace.yaml      # pnpm workspace configuration
+└── turbo.json               # Turborepo configuration
 ```
 
 ## Usage Guide
@@ -137,7 +136,7 @@ ai-chat/
 
 ### Modifying AI Model
 
-Edit `src/services/chat.ts`:
+Edit `apps/client/src/services/chat.ts`:
 
 ```typescript
 const request: OllamaChatRequest = {
@@ -152,7 +151,7 @@ const request: OllamaChatRequest = {
 
 ### Modifying API URL
 
-Edit `src/services/chat.ts`:
+Edit `apps/client/src/services/chat.ts`:
 
 ```typescript
 const API_BASE_URL = "http://localhost:11434/api";  // Change to your Ollama URL
@@ -160,7 +159,7 @@ const API_BASE_URL = "http://localhost:11434/api";  // Change to your Ollama URL
 
 ### Customizing Modes
 
-Edit `src/config/modes.ts` to add or modify modes:
+Edit `apps/client/src/config/modes.ts` to add or modify modes:
 
 ```typescript
 const MODES: Mode[] = [
@@ -176,13 +175,47 @@ const MODES: Mode[] = [
 ];
 ```
 
+### Monorepo Workspace
+
+The project uses pnpm workspace for dependency management. Dependencies are installed in the root `node_modules`.
+
+- Add dependency to specific app: `pnpm --filter @ai-chat/client add <package>`
+- Add dev tool to root: `pnpm add -D <package>`
+- Remove dependency: `pnpm --filter @ai-chat/client remove <package>`
+
 ## Development Commands
 
+### Root Commands
+
 ```bash
-npm run dev      # Start development server
-npm run build    # Build production version
-npm run preview  # Preview production build
-npm run lint     # Run ESLint
+pnpm install     # Install all dependencies
+pnpm dev         # Start all services
+pnpm build       # Build all projects
+pnpm clean       # Clean all build artifacts
+```
+
+### Client Commands
+
+```bash
+pnpm client dev       # Start client development server
+pnpm client build     # Build client
+pnpm client preview   # Preview client build
+pnpm client lint      # Run ESLint
+```
+
+### Admin Commands
+
+```bash
+pnpm admin dev        # Start admin development server
+pnpm admin build      # Build admin
+```
+
+### Server Commands
+
+```bash
+pnpm server dev       # Start server development server
+pnpm server build     # Build server
+pnpm server start     # Start server production version
 ```
 
 ## Learning Resources
@@ -238,7 +271,7 @@ The project includes detailed tutorials in the `教学指南/` directory:
 
 ## Todo
 
-- [ ] Markdown rendering
+### Client App
 - [ ] Message export
 - [ ] Dark mode
 - [ ] Image upload
@@ -246,8 +279,20 @@ The project includes detailed tutorials in the `教学指南/` directory:
 - [ ] Custom modes (user-created modes)
 - [ ] Mode memory (remember conversation history per mode)
 - [ ] Mode recommendations (auto-recommend mode based on question)
-- [ ] Adapt and configure various AI model APIs
 - [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
+
+### Admin App
+- [ ] User management
+- [ ] Chat history management
+- [ ] Data statistics
+- [ ] System settings
+
+### Server App
+- [ ] API development
+- [ ] Database integration
+- [ ] User authentication
+- [ ] Conversation history storage
+- [ ] Adapt and configure various AI model APIs
 
 ## License
 

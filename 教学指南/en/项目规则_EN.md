@@ -5,22 +5,49 @@
 - **You are the student**: You implement code based on examples, and I check and guide you
 
 ## 2. Tech Stack
-- **Framework**: React 18
+- **Architecture**: Monorepo (pnpm workspace + Turborepo)
+- **Framework**: React 19
 - **Language**: TypeScript
-- **Build Tool**: Vite
+- **Build Tool**: Vite 7
 - **Styling**: CSS Modules
 
 ## 3. File Organization Standards
 
+### Monorepo Structure
+```
+ai-chat-platform/
+├── apps/
+│   ├── client/              # Client application
+│   │   ├── src/
+│   │   │   ├── components/  # React components
+│   │   │   ├── config/      # Configuration files
+│   │   │   ├── services/    # API services
+│   │   │   ├── types/       # TypeScript types
+│   │   │   └── utils/       # Utility functions
+│   │   ├── package.json
+│   │   └── vite.config.ts
+│   ├── admin/               # Admin application (TBD)
+│   └── server/              # Server application (TBD)
+├── packages/
+│   ├── shared/              # Shared types and utilities
+│   │   └── src/
+│   └── ui/                  # Shared UI components
+│       └── src/
+├── package.json             # Root configuration
+├── pnpm-workspace.yaml      # pnpm workspace configuration
+└── turbo.json               # Turborepo configuration
+```
+
 ### Type Definitions
-- Location: `src/types/index.ts`
+- Client location: `apps/client/src/types/index.ts`
+- Shared types location: `packages/shared/src/types/index.ts`
 - Object types: use `interface`
 - Union types: use `type`
 - All types need to be `export`ed
 
 ### Component Structure
 ```
-src/components/
+apps/client/src/components/
 ├── MessageBubble/
 │   ├── MessageBubble.tsx
 │   └── MessageBubble.module.css
@@ -55,8 +82,7 @@ src/components/
 
 ### Directory Structure
 ```
-Teaching Guide/
-├── README.md           # This file
+教学指南/
 ├── 项目规则.md         # Rules explanation (send to me in new conversations)
 ├── v0.1/              # v0.1 version
 │   ├── 类型定义/
@@ -86,11 +112,11 @@ Teaching Guide/
         ├── API流式改造案例.md
         └── 集成流式输出案例.md
 └── v0.3/              # v0.3 version (Completed)
-    ├── v0.3规划_EN.md
+    ├── v0.3规划.md
     └── Markdown渲染/
-        ├── 类型定义案例_EN.md
-        ├── MarkdownRenderer组件案例_EN.md
-        └── 集成Markdown渲染案例_EN.md
+        ├── 类型定义案例.md
+        ├── MarkdownRenderer组件案例.md
+        └── 集成Markdown渲染.md
 ```
 
 ### Version Planning File Format Standards
@@ -151,6 +177,14 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
 
 ## 6. Current Project Status
 
+### Monorepo Migration Completed ✅
+- ✅ Project migrated to pnpm workspace + Turborepo architecture
+- ✅ Created apps/client, apps/admin, apps/server directories
+- ✅ Created packages/shared, packages/ui shared packages
+- ✅ Configured pnpm-workspace.yaml and turbo.json
+- ✅ Migrated client code to apps/client
+- ✅ Updated README documentation
+
 ### v0.1 Completed ✅
 - ✅ Project initialization (Vite + React + TypeScript)
 - ✅ Type definitions (Message, ChatState, ChatInputProps, Ollama API types)
@@ -187,12 +221,27 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
 - ✅ Integration with MessageBubble
 
 ### Todo ⏳
+
+#### Client App
 - [ ] Message export
 - [ ] Dark mode
 - [ ] Image upload
 - [ ] Voice input
 - [ ] Adapt and configure various AI model APIs
 - [ ] Agent System Refactoring (Multi-chat support, Agent replacing Mode)
+
+#### Admin App
+- [ ] User management
+- [ ] Chat history management
+- [ ] Data statistics
+- [ ] System settings
+
+#### Server App
+- [ ] API development
+- [ ] Database integration
+- [ ] User authentication
+- [ ] Conversation history storage
+- [ ] Adapt and configure various AI model APIs
 
 ## 7. Important Reminders
 - **Don't write code for me**, unless I explicitly ask
