@@ -8,6 +8,12 @@ An AI chat platform built with Monorepo architecture, supporting client, admin, 
 
 ### Client App (apps/client)
 
+#### v0.4
+- 🎨 Tailwind CSS + daisyUI integration
+- 🌓 Theme switching (cupcake/dark)
+- 🔄 All components refactored with Tailwind
+- 📐 Flex layout restructuring
+
 #### v0.3
 - 📝 Markdown rendering (marked + highlight.js)
 - 💻 Code highlighting
@@ -240,8 +246,16 @@ The project includes detailed tutorials in the `教学指南/` directory:
   - Markdown rendering (marked + highlight.js)
   - MarkdownRenderer component
   - Markdown rendering integration
+- **v0.4/** - v0.4 development examples (Tailwind + daisyUI)
 
 ## Version History
+
+### v0.4 (Completed)
+
+- ✅ Tailwind CSS + daisyUI integration
+- ✅ Theme switching (cupcake/dark)
+- ✅ All components refactored with Tailwind (ChatInput, MessageBubble, ChatList, ModeSelector, MarkdownRenderer)
+- ✅ App.tsx Flex layout restructuring
 
 ### v0.3 (Completed)
 
@@ -273,7 +287,8 @@ The project includes detailed tutorials in the `教学指南/` directory:
 
 ### Client App
 - [ ] Message export
-- [ ] Dark mode
+- [x] Dark mode (v0.4 basic implementation)
+- [ ] Multiple theme selection (system theme, custom themes - pending)
 - [ ] Image upload
 - [ ] Voice input
 - [ ] Custom modes (user-created modes)

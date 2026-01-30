@@ -243,6 +243,13 @@ pnpm server start     # 启动服务端生产版本
 
 ## 版本历史
 
+### v0.4 (已完成)
+
+- ✅ Tailwind CSS + daisyUI 集成
+- ✅ cupcake/dark 主题切换
+- ✅ 所有组件 Tailwind 改造（ChatInput、MessageBubble、ChatList、ModeSelector、MarkdownRenderer）
+- ✅ App.tsx Flex 布局重构
+
 ### v0.3 (已完成)
 
 - ✅ Markdown 渲染（marked + highlight.js）
@@ -273,7 +280,8 @@ pnpm server start     # 启动服务端生产版本
 
 ### 用户端
 - [ ] 消息导出
-- [ ] 深色模式
+- [x] 深色模式（v0.4 基础实现）
+- [ ] 多主题选择（跟随系统主题、自定义主题）
 - [ ] 图片上传
 - [ ] 语音输入
 - [ ] 自定义模式（用户创建自己的模式）

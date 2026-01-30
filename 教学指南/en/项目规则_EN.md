@@ -9,7 +9,7 @@
 - **Framework**: React 19
 - **Language**: TypeScript
 - **Build Tool**: Vite 7
-- **Styling**: CSS Modules
+- **Styling**: Tailwind CSS + daisyUI
 
 ## 3. File Organization Standards
 
@@ -49,14 +49,13 @@ ai-chat-platform/
 ```
 apps/client/src/components/
 ├── MessageBubble/
-│   ├── MessageBubble.tsx
-│   └── MessageBubble.module.css
+│   └── MessageBubble.tsx       # Tailwind classes + daisyUI
 ├── ChatList/
-│   ├── ChatList.tsx
-│   └── ChatList.module.css
-└── ChatInput/
-    ├── ChatInput.tsx
-    └── ChatInput.module.css
+│   └── ChatList.tsx            # Tailwind classes + daisyUI
+├── ChatInput/
+│   └── ChatInput.tsx           # Tailwind classes + daisyUI
+└── ThemeToggle/
+    └── ThemeToggle.tsx         # Theme switching component
 ```
 
 ### Naming Conventions
@@ -117,6 +116,12 @@ apps/client/src/components/
         ├── 类型定义案例.md
         ├── MarkdownRenderer组件案例.md
         └── 集成Markdown渲染.md
+└── v0.4/              # v0.4 version (Completed)
+    ├── v0.4规划.md
+    └── daisyUI集成/
+        ├── 安装配置案例.md
+        ├── 组件改造案例.md
+        └── 其他组件改造案例.md
 ```
 
 ### Version Planning File Format Standards
@@ -220,11 +225,23 @@ Please read 教学指南/项目规则.md and teach me according to these rules t
 - ✅ MarkdownRenderer component
 - ✅ Integration with MessageBubble
 
+### v0.4 Completed ✅
+- ✅ Tailwind CSS + daisyUI installation and configuration
+- ✅ cupcake/dark theme switching
+- ✅ Component refactoring with Tailwind
+  - ✅ ChatInput component
+  - ✅ MessageBubble component
+  - ✅ ChatList component
+  - ✅ ModeSelector component
+  - ✅ MarkdownRenderer component
+- ✅ App.tsx Flex layout restructuring
+
 ### Todo ⏳
 
 #### Client App
 - [ ] Message export
-- [ ] Dark mode
+- [x] Dark mode (v0.4 basic implementation)
+- [ ] Multiple theme selection (system theme, custom themes - pending)
 - [ ] Image upload
 - [ ] Voice input
 - [ ] Adapt and configure various AI model APIs

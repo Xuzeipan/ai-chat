@@ -7,6 +7,7 @@ import { ChatList } from "./components/ChatList/ChatList";
 import { ChatInput } from "./components/ChatInput/ChatInput";
 import { ModeSelector } from "./components/ModeSelector/ModeSelector";
 import getContext from "./utils/context";
+import ThemeToggle from "./components/ThemeToggle/ThemeToggle";
 
 function App() {
   const [state, setState] = useState<Omit<AppState, "modes">>({
@@ -107,19 +108,21 @@ function App() {
   };
 
   return (
-    <div className={styles.app}>
-      <div className={styles.header}>
-        {/* 模式选择器 */}
-        <ModeSelector
-          modes={MODES}
-          currentMode={state.currentMode}
-          onModeChange={handleModeChange}
-        />
-        <div className={styles.currentModeInfo}>
-          当前模式: {state.currentMode.name}
+    <div className="h-screen flex flex-col bg-base-100">
+      <header className="navbar bg-base-100 shadow-sm flex-none">
+        <div className="flwx-1">
+          <h1 className="text-xl font-bold">AI Chat</h1>
         </div>
-      </div>
-
+        <div className="flex-none gap-2">
+          <ThemeToggle />
+        </div>
+      </header>
+      {/* 模式选择器 */}
+      <ModeSelector
+        modes={MODES}
+        currentMode={state.currentMode}
+        onModeChange={handleModeChange}
+      />
       {/* 错误提示 */}
       {state.error && (
         <div className={styles.errorBanner}>

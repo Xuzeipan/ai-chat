@@ -11,11 +11,13 @@ AI Chat Platform is a Chinese-language AI chat application built as a teaching/l
 - `apps/admin`: Placeholder for future admin dashboard
 - `apps/server`: Placeholder for future backend API
 
-**Key Features (v0.3):**
+**Key Features (v0.4):**
 - Real-time streaming chat with AI
 - Multiple AI modes (General Chat, Frontend Mentor, Code Reviewer)
 - Markdown rendering with code syntax highlighting
 - Context-aware conversations with sliding window optimization
+- Tailwind CSS + daisyUI theme system (cupcake/dark)
+- Responsive Flex layout
 
 ## Technology Stack
 
@@ -23,7 +25,7 @@ AI Chat Platform is a Chinese-language AI chat application built as a teaching/l
 - **Package Manager**: pnpm 10.28.1
 - **Node.js**: 18+
 - **Client**: React 19 + TypeScript 5.9 + Vite 7
-- **Styling**: CSS Modules
+- **Styling**: Tailwind CSS + daisyUI
 - **AI Integration**: Ollama API (qwen2.5-coder:7b model)
 - **Markdown**: marked + highlight.js
 
@@ -83,7 +85,8 @@ ai-chat-platform/
 │   ├── 项目规则.md          # Project rules and conventions
 │   ├── v0.1/                # v0.1 tutorials
 │   ├── v0.2/                # v0.2 tutorials
-│   └── v0.3/                # v0.3 tutorials
+│   ├── v0.3/                # v0.3 tutorials
+│   └── v0.4/                # v0.4 tutorials (Tailwind + daisyUI)
 ├── package.json             # Root configuration
 ├── pnpm-workspace.yaml      # pnpm workspace config
 └── turbo.json               # Turborepo pipeline config
@@ -104,12 +107,13 @@ ai-chat-platform/
 - Booleans: `is` prefix (e.g., `isLoading`)
 
 ### Component Structure
-Components are organized in folders with co-located CSS modules:
+Components are organized in folders with Tailwind CSS classes:
 ```
 components/
 ├── MessageBubble/
-│   ├── MessageBubble.tsx
-│   └── MessageBubble.module.css
+│   └── MessageBubble.tsx      # Tailwind classes + daisyUI
+├── ThemeToggle/
+│   └── ThemeToggle.tsx        # Theme switching component
 ```
 
 ## Key Files

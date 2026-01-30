@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import type { Message } from "../../types";
-import styles from "./ChatList.module.css";
 import { MessageBubble } from "../MessageBubble/MessageBubble";
 
 interface ChatListProps {
@@ -18,27 +17,29 @@ export function ChatList({ messages, isLoading = false }: ChatListProps) {
   }, [messages]);
 
   return (
-    <div className={styles.chatlist} ref={listRef}>
+    <div
+      className="flex-1 overflow-y-auto py-4 scroll-smooth bg-base-100"
+      ref={listRef}
+    >
       {messages.length === 0 ? (
-        <div className={styles.empty}>暂无消息</div>
+        <div className="flex flex-col items-center justify-center h-full text-base-content/50">
+          <span className="text-5xl mb-3 opacity-50">💬</span>
+          <span>暂无消息</span>
+        </div>
       ) : (
-        <>
+        <div className="space-y-4 px-4">
           {messages
             .filter((msg) => msg.content)
             .map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
           {isLoading && (
-            <div className={styles.loading}>
-              <div className={styles.typingIndicator}>
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <span className={styles.loadingText}>AI 正在思考...</span>
+            <div className="flex items-center gap-2 px-4 py-3 text-base-content/60 text-sm">
+              <span className="loading loading-dots loading-sm"></span>
+              <span className="animate-pulse">AI 正在思考...</span>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

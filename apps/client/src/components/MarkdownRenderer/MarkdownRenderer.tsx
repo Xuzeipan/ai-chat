@@ -12,6 +12,35 @@ renderer.code = ({ text, lang }) => {
   return `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`;
 };
 
+// 表格 - 使用 daisyui table 组件
+renderer.table = (token) => {
+  // header 是 TableCell[]，需要提取 text
+  const headerHtml = token.header
+    .map((cell) => `<th>${cell.text}</th>`)
+    .join("");
+
+  // rows 是 TableCell[][]，需要提取 text
+  const rowsHtml = token.rows
+    .map(
+      (row) =>
+        `<tr>${row.map((cell) => `<td>${cell.text}</td>`).join("")}</tr>`,
+    )
+    .join("");
+
+  return `
+    <div class="overflow-x-auto my-4">
+      <table class="table w-full bg-base-200">
+        <thead>
+          <tr>${headerHtml}</tr>
+        </thead>
+        <tbody>
+          ${rowsHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+};
+
 marked.use({ renderer });
 
 export function MarkdownRenderer({
