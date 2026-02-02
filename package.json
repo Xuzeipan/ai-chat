@@ -1,1 +1,17 @@
-{"name":"ai-chat-platform","private":true,"version":"1.0.0","scripts":{"dev":"turbo dev","build":"turbo build","clean":"turbo clean && rm -rf node_modules","client":"pnpm --filter @ai-chat/client","admin":"pnpm --filter @ai-chat/admin","server":"pnpm --filter @ai-chat/server"},"devDependencies":{"turbo":"^2.0.0"},"packageManager":"pnpm@10.28.2"}
+{
+  "name": "ai-chat-platform",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "clean": "turbo clean && rm -rf node_modules",
+    "client": "pnpm --filter @ai-chat/client",
+    "admin": "pnpm --filter @ai-chat/admin",
+    "server": "pnpm --filter @ai-chat/server dev"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  },
+  "packageManager": "pnpm@10.28.2"
+}

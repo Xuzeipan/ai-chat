@@ -94,7 +94,7 @@ export function authMiddleware(
 ```typescript
 // src/services/auth.service.ts
 import bcrypt from 'bcrypt';
-import prisma from '../config/database.js';
+import { supabase } from '../config/database.js';
 import { generateToken } from '../config/jwt.js';
 import { AuthResponse } from '../types/index.js';
 
@@ -104,9 +104,11 @@ export class AuthService {
   // 注册
   async register(email: string, password: string): Promise<AuthResponse> {
     // 检查用户是否已存在
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
 
     if (existingUser) {
       throw new Error('用户已存在');
@@ -116,18 +118,15 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
     // 创建用户
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword
-      },
-      select: {
-        id: true,
-        email: true,
-        nickname: true,
-        avatar: true
-      }
-    });
+    const { data: user, error } = await supabase
+      .from('users')
+      .insert({ email, password: hashedPassword })
+      .select('id, email, nickname, avatar')
+      .single();
+
+    if (error || !user) {
+      throw new Error('创建用户失败');
+    }
 
     // 生成 Token
     const token = generateToken({ userId: user.id, email: user.email });
@@ -138,11 +137,13 @@ export class AuthService {
   // 登录
   async login(email: string, password: string): Promise<AuthResponse> {
     // 查找用户
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
 
-    if (!user) {
+    if (error || !user) {
       throw new Error('用户不存在');
     }
 
@@ -176,6 +177,7 @@ export const authService = new AuthService();
 ```typescript
 // src/routes/auth.routes.ts
 import { Router } from 'express';
+import { supabase } from '../config/database.js';
 import { authService } from '../services/auth.service.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware.js';
 
@@ -206,10 +208,13 @@ router.post('/login', async (req, res) => {
 // 获取当前用户
 router.get('/me', authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user!.userId },
-      select: { id: true, email: true, nickname: true, avatar: true }
-    });
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('id, email, nickname, avatar')
+      .eq('id', req.user!.userId)
+      .single();
+
+    if (error) throw error;
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

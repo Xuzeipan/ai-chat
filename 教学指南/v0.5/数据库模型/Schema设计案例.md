@@ -2,217 +2,387 @@
 
 ## 基础实现
 
-编辑 `prisma/schema.prisma` 文件：
+使用 Supabase Dashboard 创建表，而不是 Prisma schema。
 
-```prisma
-generator client {
-  provider = "prisma-client-js"
-}
+### 1. 用户表 (users)
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+在 Supabase Dashboard → Table Editor → New Table：
 
-// 用户表
-model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String    // bcrypt 加密后的密码
-  nickname      String?
-  avatar        String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+| 字段名 | 类型 | 默认值 | 其他 |
+|--------|------|--------|------|
+| id | uuid | gen_random_uuid() | Primary Key |
+| email | text | - | Unique, Not Null |
+| password | text | - | Not Null |
+| nickname | text | null | - |
+| avatar | text | null | - |
+| created_at | timestamptz | now() | - |
+| updated_at | timestamptz | now() | - |
 
-  // 关联
-  chatSessions  ChatSession[]
-  providerConfigs ProviderConfig[]
-  usageStats    UsageStat[]
+**SQL 语句**（也可以在 SQL Editor 中执行）：
 
-  @@map("users")
-}
-
-// AI 供应商配置表
-model ProviderConfig {
-  id            String    @id @default(uuid())
-  userId        String
-  provider      String    // openai, claude, gemini, kimi, minimax, deepseek, zhipu, ollama
-  apiKey        String    // AES 加密存储
-  baseUrl       String?   // 自定义 API 地址（可选）
-  defaultModel  String?   // 默认使用的模型
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, provider])
-  @@map("provider_configs")
-}
-
-// 聊天会话表
-model ChatSession {
-  id            String    @id @default(uuid())
-  userId        String
-  title         String    @default("新对话")
-  mode          String    @default("normal") // normal, frontend-mentor, code-reviewer
-  provider      String    // 使用的 AI 供应商
-  model         String    // 使用的具体模型
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  messages      Message[]
-
-  @@map("chat_sessions")
-}
-
-// 消息记录表
-model Message {
-  id              String    @id @default(uuid())
-  sessionId       String
-  role            String    // user, assistant, system
-  content         String
-  tokenCount      Int?      // token 使用量（估算）
-  responseTime    Int?      // 响应时间（毫秒）
-  createdAt       DateTime  @default(now())
-
-  session         ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-
-  @@map("messages")
-}
-
-// 使用统计表
-model UsageStat {
-  id              String    @id @default(uuid())
-  userId          String
-  provider        String
-  model           String
-  requestCount    Int       @default(0)
-  tokenInput      Int       @default(0)
-  tokenOutput     Int       @default(0)
-  date            DateTime  @db.Date
-
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, provider, model, date])
-  @@map("usage_stats")
-}
+```sql
+create table users (
+  id uuid default gen_random_uuid() primary key,
+  email text unique not null,
+  password text not null,
+  nickname text,
+  avatar text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 ```
 
-## 使用示例
+### 2. AI 供应商配置表 (provider_configs)
 
-### 生成迁移文件
+| 字段名 | 类型 | 默认值 | 其他 |
+|--------|------|--------|------|
+| id | uuid | gen_random_uuid() | Primary Key |
+| user_id | uuid | - | Foreign Key → users(id), onDelete: cascade |
+| provider | text | - | Not Null |
+| api_key | text | - | Not Null |
+| base_url | text | null | - |
+| default_model | text | null | - |
+| is_active | boolean | true | - |
+| created_at | timestamptz | now() | - |
+| updated_at | timestamptz | now() | - |
 
-```bash
-npx prisma migrate dev --name init
+**约束**：
+- Unique: (user_id, provider)
+
+**SQL 语句**：
+
+```sql
+create table provider_configs (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) on delete cascade,
+  provider text not null,
+  api_key text not null,
+  base_url text,
+  default_model text,
+  is_active boolean default true,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(user_id, provider)
+);
 ```
 
-### 生成 Prisma Client
+### 3. 聊天会话表 (chat_sessions)
 
-```bash
-npx prisma generate
+| 字段名 | 类型 | 默认值 | 其他 |
+|--------|------|--------|------|
+| id | uuid | gen_random_uuid() | Primary Key |
+| user_id | uuid | - | Foreign Key → users(id), onDelete: cascade |
+| title | text | '新对话' | Not Null |
+| mode | text | 'normal' | Not Null |
+| provider | text | - | Not Null |
+| model | text | - | Not Null |
+| created_at | timestamptz | now() | - |
+| updated_at | timestamptz | now() | - |
+
+**SQL 语句**：
+
+```sql
+create table chat_sessions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) on delete cascade,
+  title text default '新对话' not null,
+  mode text default 'normal' not null,
+  provider text not null,
+  model text not null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 ```
 
-### 基本 CRUD 操作
+### 4. 消息记录表 (messages)
+
+| 字段名 | 类型 | 默认值 | 其他 |
+|--------|------|--------|------|
+| id | uuid | gen_random_uuid() | Primary Key |
+| session_id | uuid | - | Foreign Key → chat_sessions(id), onDelete: cascade |
+| role | text | - | Not Null (user/assistant/system) |
+| content | text | - | Not Null |
+| token_count | int | null | - |
+| response_time | int | null | - |
+| created_at | timestamptz | now() | - |
+
+**SQL 语句**：
+
+```sql
+create table messages (
+  id uuid default gen_random_uuid() primary key,
+  session_id uuid references chat_sessions(id) on delete cascade,
+  role text not null,
+  content text not null,
+  token_count int,
+  response_time int,
+  created_at timestamptz default now()
+);
+```
+
+### 5. 使用统计表 (usage_stats)
+
+| 字段名 | 类型 | 默认值 | 其他 |
+|--------|------|--------|------|
+| id | uuid | gen_random_uuid() | Primary Key |
+| user_id | uuid | - | Foreign Key → users(id), onDelete: cascade |
+| provider | text | - | Not Null |
+| model | text | - | Not Null |
+| request_count | int | 0 | - |
+| token_input | int | 0 | - |
+| token_output | int | 0 | - |
+| date | date | - | Not Null |
+
+**约束**：
+- Unique: (user_id, provider, model, date)
+
+**SQL 语句**：
+
+```sql
+create table usage_stats (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) on delete cascade,
+  provider text not null,
+  model text not null,
+  request_count int default 0,
+  token_input int default 0,
+  token_output int default 0,
+  date date not null,
+  unique(user_id, provider, model, date)
+);
+```
+
+## 添加索引优化
+
+在 SQL Editor 中执行：
+
+```sql
+-- 消息表索引（加速按会话查询）
+create index idx_messages_session_id on messages(session_id);
+create index idx_messages_session_created on messages(session_id, created_at);
+
+-- 使用统计索引（加速按用户查询）
+create index idx_usage_stats_user_date on usage_stats(user_id, date);
+
+-- 供应商配置索引
+create index idx_provider_configs_user on provider_configs(user_id);
+```
+
+## 添加更新触发器
+
+自动更新 `updated_at` 字段：
+
+```sql
+-- 创建更新函数
+create or replace function update_updated_at_column()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+-- 为用户表添加触发器
+create trigger update_users_updated_at
+  before update on users
+  for each row
+  execute function update_updated_at_column();
+
+-- 为供应商配置表添加触发器
+create trigger update_provider_configs_updated_at
+  before update on provider_configs
+  for each row
+  execute function update_updated_at_column();
+
+-- 为会话表添加触发器
+create trigger update_chat_sessions_updated_at
+  before update on chat_sessions
+  for each row
+  execute function update_updated_at_column();
+```
+
+## TypeScript 类型定义
+
+创建 `src/types/database.ts`：
 
 ```typescript
-// 创建用户
-const user = await prisma.user.create({
-  data: {
-    email: 'test@example.com',
-    password: 'hashed_password',
-    nickname: '测试用户'
-  }
-});
-
-// 查询用户及关联数据
-const userWithSessions = await prisma.user.findUnique({
-  where: { id: 'user_id' },
-  include: {
-    chatSessions: {
-      include: {
-        messages: {
-          take: 20,
-          orderBy: { createdAt: 'desc' }
-        }
-      }
-    },
-    providerConfigs: true
-  }
-});
-
-// 创建会话和消息
-const session = await prisma.chatSession.create({
-  data: {
-    userId: 'user_id',
-    title: '前端学习',
-    provider: 'openai',
-    model: 'gpt-4',
-    messages: {
-      create: [
-        { role: 'user', content: '你好' },
-        { role: 'assistant', content: '你好！有什么我可以帮助你的吗？' }
-      ]
-    }
-  }
-});
+export interface Database {
+  public: {
+    Tables: {
+      users: {
+        Row: {
+          id: string;
+          email: string;
+          password: string;
+          nickname: string | null;
+          avatar: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          email: string;
+          password: string;
+          nickname?: string | null;
+          avatar?: string | null;
+        };
+        Update: {
+          email?: string;
+          password?: string;
+          nickname?: string | null;
+          avatar?: string | null;
+        };
+      };
+      provider_configs: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: string;
+          api_key: string;
+          base_url: string | null;
+          default_model: string | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: string;
+          api_key: string;
+          base_url?: string | null;
+          default_model?: string | null;
+          is_active?: boolean;
+        };
+        Update: {
+          user_id?: string;
+          provider?: string;
+          api_key?: string;
+          base_url?: string | null;
+          default_model?: string | null;
+          is_active?: boolean;
+        };
+      };
+      chat_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          title: string;
+          mode: string;
+          provider: string;
+          model: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          title?: string;
+          mode?: string;
+          provider: string;
+          model: string;
+        };
+        Update: {
+          title?: string;
+          mode?: string;
+          provider?: string;
+          model?: string;
+        };
+      };
+      messages: {
+        Row: {
+          id: string;
+          session_id: string;
+          role: string;
+          content: string;
+          token_count: number | null;
+          response_time: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          session_id: string;
+          role: string;
+          content: string;
+          token_count?: number | null;
+          response_time?: number | null;
+        };
+        Update: {
+          content?: string;
+          token_count?: number | null;
+          response_time?: number | null;
+        };
+      };
+      usage_stats: {
+        Row: {
+          id: string;
+          user_id: string;
+          provider: string;
+          model: string;
+          request_count: number;
+          token_input: number;
+          token_output: number;
+          date: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          provider: string;
+          model: string;
+          request_count?: number;
+          token_input?: number;
+          token_output?: number;
+          date: string;
+        };
+        Update: {
+          request_count?: number;
+          token_input?: number;
+          token_output?: number;
+        };
+      };
+    };
+  };
+}
 ```
 
 ## 原理解释
 
-### 数据类型
+### 为什么用 Supabase Dashboard 而不是 Prisma Migrate？
 
-| 类型 | 说明 |
-|------|------|
-| `String` | 变长字符串 |
-| `DateTime` | 日期时间 |
-| `Int` | 整数 |
-| `Boolean` | 布尔值 |
-| `?` | 可选（nullable） |
+| 方式 | 优点 | 缺点 |
+|------|------|------|
+| **Supabase Dashboard** | 可视化操作，直观易懂；无需额外工具 | 手动操作，不适合大型团队协作 |
+| **Prisma Migrate** | 代码化管理，版本控制；自动化迁移 | 配置复杂，有代码生成问题 |
 
-### 字段属性
+对于教学项目，Supabase Dashboard 更简单易用。
 
-| 属性 | 说明 |
-|------|------|
-| `@id` | 主键 |
-| `@default(uuid())` | 默认生成 UUID |
-| `@unique` | 唯一约束 |
-| `@default(now())` | 默认当前时间 |
-| `@updatedAt` | 自动更新修改时间 |
-| `@relation` | 定义关系 |
-| `@map` | 映射到数据库表名 |
+### 数据类型说明
 
-### 关系类型
+| PostgreSQL 类型 | TypeScript 对应 | 说明 |
+|-----------------|-----------------|------|
+| `uuid` | `string` | 唯一标识符，使用 `gen_random_uuid()` 生成 |
+| `text` | `string` | 变长字符串 |
+| `timestamptz` | `string` | 带时区的时间戳 |
+| `int` | `number` | 整数 |
+| `boolean` | `boolean` | 布尔值 |
+| `date` | `string` | 日期（无时区） |
 
-1. **一对多**: User → ChatSession (一个用户有多个会话)
-2. **级联删除**: `onDelete: Cascade` 删除用户时自动删除关联数据
+### 约束说明
 
-## 进阶功能
-
-### 添加索引优化
-
-```prisma
-model Message {
-  // ... 其他字段
-
-  @@index([sessionId, createdAt])
-  @@map("messages")
-}
-
-model UsageStat {
-  // ... 其他字段
-
-  @@index([userId, date])
-  @@map("usage_stats")
-}
-```
+- **Primary Key**: 主键，唯一标识每条记录
+- **Foreign Key**: 外键，关联其他表，配置 `on delete cascade` 级联删除
+- **Unique**: 唯一约束，防止重复数据
+- **Not Null**: 非空约束，必须有值
 
 ## 你的任务
 
-1. 编辑 `prisma/schema.prisma`，添加以上模型定义
-2. 运行 `npx prisma migrate dev --name init` 创建数据库表
-3. 运行 `npx prisma generate` 生成客户端
-4. 测试：创建一两个用户记录验证表结构正确
+1. 登录 Supabase Dashboard
+2. 在 Table Editor 中创建上述 5 张表
+   - 先创建 `users`（没有其他表依赖它）
+   - 再创建 `provider_configs` 和 `chat_sessions`（依赖 users）
+   - 最后创建 `messages`（依赖 chat_sessions）和 `usage_stats`
+3. 在 SQL Editor 中执行索引和触发器语句
+4. 创建 `src/types/database.ts`，定义所有表类型
+5. 测试：在 Table Editor 中手动插入一条用户记录，验证表结构正确
 
 完成后告诉我，我帮你检查。

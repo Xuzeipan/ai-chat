@@ -43,7 +43,7 @@ export function decryptApiKey(encryptedData: string): string {
 
 ```typescript
 // src/services/provider.service.ts
-import prisma from '../config/database.js';
+import { supabase } from '../config/database.js';
 import { encryptApiKey, decryptApiKey } from '../utils/crypto.js';
 import { getAdapter, ProviderType } from './ai/index.js';
 
@@ -70,51 +70,74 @@ export class ProviderService {
   ): Promise<ProviderConfigOutput> {
     const encryptedKey = encryptApiKey(config.apiKey);
 
-    const result = await prisma.providerConfig.upsert({
-      where: {
-        userId_provider: {
-          userId,
-          provider: config.provider
-        }
-      },
-      update: {
-        apiKey: encryptedKey,
-        baseUrl: config.baseUrl,
-        defaultModel: config.defaultModel,
-        isActive: true
-      },
-      create: {
-        userId,
-        provider: config.provider,
-        apiKey: encryptedKey,
-        baseUrl: config.baseUrl,
-        defaultModel: config.defaultModel
-      },
-      select: {
-        id: true,
-        provider: true,
-        baseUrl: true,
-        defaultModel: true,
-        isActive: true
-      }
-    });
+    // 先尝试查询现有配置
+    const { data: existing } = await supabase
+      .from('provider_configs')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('provider', config.provider)
+      .single();
 
-    return result;
+    let result;
+    if (existing) {
+      // 更新
+      const { data, error } = await supabase
+        .from('provider_configs')
+        .update({
+          api_key: encryptedKey,
+          base_url: config.baseUrl,
+          default_model: config.defaultModel,
+          is_active: true
+        })
+        .eq('id', existing.id)
+        .select('id, provider, base_url, default_model, is_active')
+        .single();
+      if (error) throw error;
+      result = data;
+    } else {
+      // 创建
+      const { data, error } = await supabase
+        .from('provider_configs')
+        .insert({
+          user_id: userId,
+          provider: config.provider,
+          api_key: encryptedKey,
+          base_url: config.baseUrl,
+          default_model: config.defaultModel
+        })
+        .select('id, provider, base_url, default_model, is_active')
+        .single();
+      if (error) throw error;
+      result = data;
+    }
+
+    return {
+      id: result.id,
+      provider: result.provider,
+      baseUrl: result.base_url,
+      defaultModel: result.default_model,
+      isActive: result.is_active
+    };
   }
 
   // 获取用户的所有配置
   async getUserConfigs(userId: string): Promise<ProviderConfigOutput[]> {
-    return prisma.providerConfig.findMany({
-      where: { userId, isActive: true },
-      select: {
-        id: true,
-        provider: true,
-        baseUrl: true,
-        defaultModel: true,
-        isActive: true
-      },
-      orderBy: { createdAt: 'desc' }
-    });
+    const { data, error } = await supabase
+      .from('provider_configs')
+      .select('id, provider, base_url, default_model, is_active')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return (data || []).map(item => ({
+      id: item.id,
+      provider: item.provider,
+      baseUrl: item.base_url,
+      defaultModel: item.default_model,
+      isActive: item.is_active
+    }));
   }
 
   // 获取单个配置（包含解密的 API Key）
@@ -122,28 +145,33 @@ export class ProviderService {
     userId: string,
     provider: ProviderType
   ): Promise<{ apiKey: string; baseUrl?: string; defaultModel?: string } | null> {
-    const config = await prisma.providerConfig.findUnique({
-      where: {
-        userId_provider: { userId, provider }
-      }
-    });
+    const { data: config, error } = await supabase
+      .from('provider_configs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('provider', provider)
+      .single();
 
-    if (!config || !config.isActive) {
+    if (error || !config || !config.is_active) {
       return null;
     }
 
     return {
-      apiKey: decryptApiKey(config.apiKey),
-      baseUrl: config.baseUrl || undefined,
-      defaultModel: config.defaultModel || undefined
+      apiKey: decryptApiKey(config.api_key),
+      baseUrl: config.base_url || undefined,
+      defaultModel: config.default_model || undefined
     };
   }
 
   // 删除配置
   async deleteConfig(userId: string, configId: string): Promise<void> {
-    await prisma.providerConfig.deleteMany({
-      where: { id: configId, userId }
-    });
+    const { error } = await supabase
+      .from('provider_configs')
+      .delete()
+      .eq('id', configId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
   }
 
   // 测试 API Key 是否有效
