@@ -1,9 +1,9 @@
+import "./config/env.js";
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import apiRouter from "./routes/index.js";
-
-dotenv.config();
+import { supabase } from "./config/database.js";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,22 @@ app.use(express.json());
 app.use(apiRouter);
 
 // 健康检查
-app.get("/health", (req, res) => {
+app.get("/health", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("users").select("count");
+    if (error) throw error;
+    res.json({
+      status: "ok",
+      database: "connected",
+      timestamp: new Date().toISOString(),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      database: "disconnected",
+    });
+  }
+
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 

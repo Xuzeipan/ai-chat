@@ -131,8 +131,43 @@ components/
 3. Ollama installed and running (`ollama serve`)
 4. qwen2.5-coder:7b model downloaded (`ollama pull qwen2.5-coder:7b`)
 
+## Known Issues & Solutions
+
+### Server 端 dotenv 配置问题
+
+**问题**：在 Monorepo 根目录运行 `pnpm server` 时，`dotenv` 默认从**当前工作目录**（CWD）查找 `.env` 文件，导致无法正确加载 `apps/server/.env` 中的环境变量。
+
+**错误表现**：
+```
+Error: supabaseUrl is required.
+```
+
+**解决方案**：创建 `apps/server/src/config/env.ts` 文件，基于文件位置而非工作目录加载 `.env`：
+
+```typescript
+// apps/server/src/config/env.ts
+import path from "path";
+import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import fs from "fs";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPathFromFile = path.join(__dirname, "../../.env");  // 基于文件位置
+const envPathFromCwd = path.join(process.cwd(), ".env");    // 基于运行目录
+
+const envPath = fs.existsSync(envPathFromFile) ? envPathFromFile : envPathFromCwd;
+dotenv.config({ path: envPath });
+```
+
+然后在所有需要访问环境变量的文件最开始导入：
+```typescript
+import "./config/env.js";  // 必须在其他导入之前
+```
+
+这样无论从哪个目录启动（根目录或 apps/server），都能正确找到 `.env` 文件。
+
 ## Teaching Context
 
 This is a teacher-student learning project. The `教学指南/` directory contains detailed tutorials organized by version (v0.1, v0.2, v0.3). Each version has case-based documentation for students to implement features step by step.
 
-When working on this codebase, refer to `教学指南/项目规则.md` for the complete project conventions and current development status.
+When working on this codebase, refer to `项目规则.md` in the root directory for the complete project conventions and current development status.
