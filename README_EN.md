@@ -37,9 +37,9 @@ An AI chat platform built with Monorepo architecture, supporting client, admin, 
 ## Tech Stack
 
 - **Architecture**: Monorepo (pnpm workspace + Turborepo)
-- **Client**: React 19 + TypeScript + Vite 7
+- **Client**: React 19 + TypeScript + Vite 7 + Tailwind CSS + daisyUI
 - **Admin**: TBD
-- **Server**: TBD
+- **Server**: Express + TypeScript + Supabase
 - **AI Model**: Ollama (qwen2.5-coder:7b)
 
 ## Prerequisites
@@ -109,7 +109,6 @@ ai-chat-platform/
 │   │   └── src/
 │   └── ui/                  # Shared UI components
 │       └── src/
-├── 教学指南/                # Learning documentation (Chinese)
 ├── package.json             # Root configuration
 ├── pnpm-workspace.yaml      # pnpm workspace configuration
 └── turbo.json               # Turborepo configuration
@@ -226,27 +225,7 @@ pnpm server start     # Start server production version
 
 ## Learning Resources
 
-The project includes detailed tutorials in the `教学指南/` directory:
-
 - **项目规则.md** - Development conventions and standards
-- **v0.1/** - v0.1 development examples
-  - Type definitions
-  - UI components (MessageBubble, ChatList, ChatInput)
-  - State management
-  - API integration
-  - Styling optimization
-- **v0.2/** - v0.2 development examples
-  - Type definitions (Mode, StreamChunk, AppState)
-  - Mode configuration (MODES constant)
-  - Context management (getContext function)
-  - API integration (streaming sendMessageStream)
-  - UI components (ModeSelector)
-  - State management (complete state management examples)
-- **v0.3/** - v0.3 development examples
-  - Markdown rendering (marked + highlight.js)
-  - MarkdownRenderer component
-  - Markdown rendering integration
-- **v0.4/** - v0.4 development examples (Tailwind + daisyUI)
 
 ## Version History
 
@@ -302,12 +281,13 @@ The project includes detailed tutorials in the `教学指南/` directory:
 - [ ] Data statistics
 - [ ] System settings
 
-### Server App
-- [ ] API development
-- [ ] Database integration
-- [ ] User authentication
+### Server App (v0.5 In Progress)
+- [x] Project initialization (Express + TypeScript)
+- [x] Database integration (Supabase)
+- [x] User authentication (JWT + bcrypt)
+- [ ] AI chat API (streaming)
 - [ ] Conversation history storage
-- [ ] Adapt and configure various AI model APIs
+- [ ] Multi-model provider configuration
 
 ## License
 

@@ -24,6 +24,7 @@ export interface Database {
           nickname?: string | null;
           avatar?: string | null;
         };
+        Relationships: [];
       };
       provider_configs: {
         Row: {
@@ -54,6 +55,7 @@ export interface Database {
           default_model?: string | null;
           is_active?: boolean;
         };
+        Relationships: [];
       };
       chat_sessions: {
         Row: {
@@ -80,6 +82,7 @@ export interface Database {
           provider?: string;
           model?: string;
         };
+        Relationships: [];
       };
       messages: {
         Row: {
@@ -104,6 +107,7 @@ export interface Database {
           token_count?: number | null;
           response_time?: number | null;
         };
+        Relationships: [];
       };
       usage_stats: {
         Row: {
@@ -131,7 +135,12 @@ export interface Database {
           token_input?: number;
           token_output?: number;
         };
+        Relationships: [];
       };
     };
+    Views: {};
+    Functions: {};
+    Enums: {};
+    CompositeTypes: {};
   };
 }
